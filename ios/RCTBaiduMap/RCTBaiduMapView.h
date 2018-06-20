@@ -10,8 +10,8 @@
 #define RCTBaiduMapView_h
 
 
-#import <React/RCTViewManager.h>
-#import <React/RCTConvert+CoreLocation.h>
+#import "RCTViewManager.h"
+#import "RCTConvert+CoreLocation.h"
 #import <BaiduMapAPI_Map/BMKMapView.h>
 #import <BaiduMapAPI_Map/BMKPinAnnotationView.h>
 #import <BaiduMapAPI_Map/BMKPointAnnotation.h>

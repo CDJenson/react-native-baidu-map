@@ -5,9 +5,12 @@ import {
   Platform,
   DeviceEventEmitter
 } from 'react-native';
-import React, { Component } from 'react';
+
+import React, {
+  Component,
+} from 'react';
 import PropTypes from 'prop-types';
-import MapTypes from './MapTypes';
+import Types from './Types';
 
 export default class MapView extends Component {
   static propTypes = {
@@ -35,7 +38,7 @@ export default class MapView extends Component {
     zoomControlsVisible: true,
     trafficEnabled: false,
     baiduHeatMapEnabled: false,
-    mapType: MapTypes.NORMAL,
+    mapType: Types.MapTypes.NORMAL,
     childrenPoints: [],
     marker: null,
     markers: [],

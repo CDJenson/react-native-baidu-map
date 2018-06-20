@@ -33,4 +33,6 @@ android {
 dependencies {
     compile 'com.facebook.react:react-native:+'
     compile files('libs/BaiduLBS_Android.jar')
+    compile files('libs/BaiduNaviSDK_3.3.1.jar')
+    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
 }

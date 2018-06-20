@@ -1,11 +1,7 @@
 package org.lovebing.reactnative.baidumap;
 
-import android.util.Log;
-import android.widget.Button;
-
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
-import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
@@ -25,14 +21,21 @@ public class MarkerUtil {
     }
 
     public static Marker addMarker(MapView mapView, ReadableMap option) {
-        BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.icon_gcoding);
+        BitmapDescriptor bitmap = null;
+        if (option.getString("icon").equals("effective")) {
+            bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.device_point_normal);
+        } else if(option.getString("icon").equals("invalid")){
+            bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.device_point_error);
+        }else if(option.getString("icon").equals("mLocation")){
+            bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.location);
+        }
         LatLng position = getLatLngFromOption(option);
         OverlayOptions overlayOptions = new MarkerOptions()
                 .icon(bitmap)
                 .position(position)
                 .title(option.getString("title"));
 
-        Marker marker = (Marker)mapView.getMap().addOverlay(overlayOptions);
+        Marker marker = (Marker) mapView.getMap().addOverlay(overlayOptions);
         return marker;
     }
 
