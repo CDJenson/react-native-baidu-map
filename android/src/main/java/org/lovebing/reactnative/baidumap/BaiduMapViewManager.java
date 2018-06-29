@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
 import static com.baidu.navisdk.adapter.PackageUtil.getSdcardDir;
 
 
@@ -172,12 +173,16 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
         }
     };
 
+    private RoutePlanUtil mRoutePlanUtil;
+
     public MapView createViewInstance(ThemedReactContext context) {
         mReactContext = context;
         if (initDirs()) {
             initNavi();
         }
         MapView mapView = new MapView(context);
+        mRoutePlanUtil = new RoutePlanUtil();
+        mRoutePlanUtil.init(mReactContext, mapView.getMap());
         if (onSetBaiduMapListener != null) {
             onSetBaiduMapListener.addMap(mapView.getMap());
         }
@@ -186,7 +191,7 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
         * 隐藏Baidu地图Logo
         * */
         View child = mapView.getChildAt(1);
-        if (child != null && (child instanceof ImageView || child instanceof ZoomControls)){
+        if (child != null && (child instanceof ImageView || child instanceof ZoomControls)) {
             child.setVisibility(View.INVISIBLE);
         }
 
@@ -275,6 +280,7 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
         }
     }
 
+
     @ReactProp(name = "markers")
     public void setMarkers(MapView mapView, ReadableArray options) {
         String key = "markers_" + mapView.getId();
@@ -299,6 +305,21 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
             }
         }
         mMarkersMap.put(key, markers);
+    }
+
+    @ReactProp(name = "routeMarks")
+    public void routePlan(MapView mapView, ReadableArray options) {
+
+        ArrayList<MyNode> nodes = new ArrayList<>();
+        for (int i = 0; i < options.size(); i++) {
+            ReadableMap option = options.getMap(i);
+            MyNode node = new MyNode();
+            node.setLatitude(option.getDouble("latitude"));
+            node.setLongtide(option.getDouble("longitude"));
+            nodes.add(node);
+        }
+        mRoutePlanUtil.routeMulPointPlan("DRIVING","深圳",nodes);
+
     }
 
     @ReactProp(name = "childrenPoints")

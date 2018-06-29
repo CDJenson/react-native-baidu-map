@@ -1,6 +1,6 @@
 package org.lovebing.reactnative.baidumap;
 
-import android.util.Log;
+import android.content.Context;
 import android.widget.Toast;
 
 import com.baidu.mapapi.map.BaiduMap;
@@ -20,8 +20,6 @@ import com.baidu.mapapi.search.route.TransitRoutePlanOption;
 import com.baidu.mapapi.search.route.TransitRouteResult;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import com.baidu.mapapi.search.route.WalkingRouteResult;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactMethod;
 
 import org.lovebing.reactnative.overlayutil.BikingRouteOverlay;
 import org.lovebing.reactnative.overlayutil.DrivingRouteOverlay;
@@ -30,12 +28,13 @@ import org.lovebing.reactnative.overlayutil.TransitRouteOverlay;
 import org.lovebing.reactnative.overlayutil.WalkingRouteOverlay;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by 909929 on 2018/5/28.
+ * Created by 909929 on 2018/6/29.
  */
 
-public class RoutePlanModule extends BaseModule implements OnGetRoutePlanResultListener {
+public class RoutePlanUtil implements OnGetRoutePlanResultListener {
 
     private BaiduMap mBauduMap;
     private RoutePlanSearch mSearch = null; // 搜索模块，也可去掉地图模块独立使用
@@ -43,77 +42,41 @@ public class RoutePlanModule extends BaseModule implements OnGetRoutePlanResultL
     private OverlayManager routeOverlay = null;
     private boolean useDefaultIcon = false;
 
-    public RoutePlanModule(ReactApplicationContext reactContext) {
-        super(reactContext);
-        context = reactContext;
-    }
+    private Context context;
 
-    @Override
-    public String getName() {
-        return "BaiduRoutePlannModule";
-    }
+    public void init(Context context, BaiduMap baiduMap) {
+        this.context = context;
 
-    public void setBaiduMap(BaiduMap baiduMap) {
         mBauduMap = baiduMap;
         // 初始化搜索模块，注册事件监听
         mSearch = RoutePlanSearch.newInstance();
         mSearch.setOnGetRoutePlanResultListener(this);
     }
 
-    /**
-     * 发起路线规划搜索
-     *
-     * @param
-     */
-    @ReactMethod
-    public void routePlan(String wayType, String city, double sLat, double sLng, double eLat, double eLng) {
-        // 重置浏览节点的路线数据
-        route = null;
-        mBauduMap.clear();
-
-        LatLng start = new LatLng(sLat, sLng);
-        LatLng end = new LatLng(eLat, eLng);
-        // 设置起终点信息，对于tranist search 来说，城市名无意义
-        PlanNode stNode = PlanNode.withLocation(start);
-        PlanNode enNode = PlanNode.withLocation(end);
-
-
-        // 实际使用中请对起点终点城市进行正确的设定
-        switch (wayType) {
-            case "DRIVING":
-                mSearch.drivingSearch((new DrivingRoutePlanOption()).from(stNode).to(enNode));
-                break;
-            case "TRANSIT":
-                mSearch.transitSearch((new TransitRoutePlanOption()).from(stNode).city(city).to(enNode));
-                break;
-            case "WALKING":
-                mSearch.walkingSearch((new WalkingRoutePlanOption()).from(stNode).to(enNode));
-                break;
-            case "BIKE":
-                mSearch.bikingSearch((new BikingRoutePlanOption()).from(stNode).to(enNode));
-                break;
-        }
-    }
-
-
-    /**
-     * 发起多点路线规划搜索
-     *
-     * @param
-     */
-    @ReactMethod
     public void routeMulPointPlan(String wayType, String city, ArrayList<MyNode> nodes) {
         // 重置浏览节点的路线数据
         route = null;
         mBauduMap.clear();
 
-        Log.d("routeMulPointPlan", "routeMulPointPlan: " + nodes);
-        for (int i = 0; i < nodes.size(); i++) {
 
+//        LatLng start = new LatLng(22.539962, 113.95075);
+//        LatLng end = new LatLng(22.539862, 113.95165);
+        List<PlanNode> passes = new ArrayList();
+        LatLng start = null, end = null;
+
+        for (int i = 0; i < nodes.size(); i++) {
+            if (i == 0) {
+                start = new LatLng(nodes.get(i).getLatitude(), nodes.get(i).getLongtide());
+            } else if (i == nodes.size() - 1) {
+                end = new LatLng(nodes.get(i).getLatitude(), nodes.get(i).getLongtide());
+            } else {
+                LatLng ll = new LatLng(nodes.get(i).getLatitude(), nodes.get(i).getLongtide());
+                PlanNode pass = PlanNode.withLocation(ll);
+                passes.add(pass);
+            }
         }
 
-        LatLng start = new LatLng(22.539962, 113.95075);
-        LatLng end = new LatLng(22.539862, 113.95165);
+
         // 设置起终点信息，对于tranist search 来说，城市名无意义
         PlanNode stNode = PlanNode.withLocation(start);
         PlanNode enNode = PlanNode.withLocation(end);
@@ -122,7 +85,7 @@ public class RoutePlanModule extends BaseModule implements OnGetRoutePlanResultL
         // 实际使用中请对起点终点城市进行正确的设定
         switch (wayType) {
             case "DRIVING":
-                mSearch.drivingSearch((new DrivingRoutePlanOption()).from(stNode).to(enNode));
+                mSearch.drivingSearch((new DrivingRoutePlanOption()).from(stNode).passBy(passes).to(enNode));
                 break;
             case "TRANSIT":
                 mSearch.transitSearch((new TransitRoutePlanOption()).from(stNode).city(city).to(enNode));
@@ -135,6 +98,7 @@ public class RoutePlanModule extends BaseModule implements OnGetRoutePlanResultL
                 break;
         }
     }
+
 
     @Override
     public void onGetWalkingRouteResult(WalkingRouteResult walkingRouteResult) {
@@ -312,5 +276,4 @@ public class RoutePlanModule extends BaseModule implements OnGetRoutePlanResultL
         }
 
     }
-
 }
