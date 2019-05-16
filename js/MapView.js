@@ -1,68 +1,68 @@
 import {
-  requireNativeComponent,
-  View,
-  NativeModules,
-  Platform,
-  DeviceEventEmitter
+    requireNativeComponent,
+    View,
+    NativeModules,
+    Platform,
+    DeviceEventEmitter
 } from 'react-native';
 
 import React, {
-  Component,
+    Component,
 } from 'react';
 import PropTypes from 'prop-types';
 import Types from './Types';
 
 export default class MapView extends Component {
-  static propTypes = {
-    ...View.propTypes,
-    zoomControlsVisible: PropTypes.bool,
-    trafficEnabled: PropTypes.bool,
-    baiduHeatMapEnabled: PropTypes.bool,
-    mapType: PropTypes.number,
-    zoom: PropTypes.number,
-    center: PropTypes.object,
-    marker: PropTypes.object,
-    markers: PropTypes.array,
-      routeMarks:PropTypes.array,
-    childrenPoints: PropTypes.array,
-    onMapStatusChangeStart: PropTypes.func,
-    onMapStatusChange: PropTypes.func,
-    onMapStatusChangeFinish: PropTypes.func,
-    onMapLoaded: PropTypes.func,
-    onMapClick: PropTypes.func,
-    onMapDoubleClick: PropTypes.func,
-    onMarkerClick: PropTypes.func,
-    onMapPoiClick: PropTypes.func
-  };
+    static propTypes = {
+        ...View.propTypes,
+        zoomControlsVisible: PropTypes.bool,
+        trafficEnabled: PropTypes.bool,
+        baiduHeatMapEnabled: PropTypes.bool,
+        mapType: PropTypes.number,
+        zoom: PropTypes.number,
+        center: PropTypes.object,
+        marker: PropTypes.object,
+        markers: PropTypes.array,
+        routeMarks: PropTypes.array,
+        childrenPoints: PropTypes.array,
+        onMapStatusChangeStart: PropTypes.func,
+        onMapStatusChange: PropTypes.func,
+        onMapStatusChangeFinish: PropTypes.func,
+        onMapLoaded: PropTypes.func,
+        onMapClick: PropTypes.func,
+        onMapDoubleClick: PropTypes.func,
+        onMarkerClick: PropTypes.func,
+        onMapPoiClick: PropTypes.func
+    };
 
-  static defaultProps = {
-    zoomControlsVisible: true,
-    trafficEnabled: false,
-    baiduHeatMapEnabled: false,
-    mapType: Types.MapTypes.NORMAL,
-    childrenPoints: [],
-    marker: null,
-    markers: [],
-      routeMarks:[],
-    center: null,
-    zoom: 10
-  };
+    static defaultProps = {
+        zoomControlsVisible: true,
+        trafficEnabled: false,
+        baiduHeatMapEnabled: false,
+        mapType: Types.MapTypes.NORMAL,
+        childrenPoints: [],
+        marker: null,
+        markers: [],
+        routeMarks: [],
+        center: null,
+        zoom: 10
+    };
 
-  constructor() {
-    super();
-  }
-
-  _onChange(event) {
-    if (typeof this.props[event.nativeEvent.type] === 'function') {
-      this.props[event.nativeEvent.type](event.nativeEvent.params);
+    constructor() {
+        super();
     }
-  }
 
-  render() {
-    return <BaiduMapView {...this.props} onChange={this._onChange.bind(this)}/>;
-  }
+    _onChange(event) {
+        if (typeof this.props[event.nativeEvent.type] === 'function') {
+            this.props[event.nativeEvent.type](event.nativeEvent.params);
+        }
+    }
+
+    render() {
+        return <BaiduMapView {...this.props} onChange={this._onChange.bind(this)}/>;
+    }
 }
 
 const BaiduMapView = requireNativeComponent('RCTBaiduMapView', MapView, {
-  nativeOnly: {onChange: true}
+    nativeOnly: {onChange: true}
 });

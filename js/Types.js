@@ -7,11 +7,9 @@ export default {
     },
 
     CoverTypes: {
-
         INVALID: 'invalid',
         EFFECTIVE: 'effective',
         MYLOCATION: 'mLocation',
-
     },
 
     CoordinateType:{

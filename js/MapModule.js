@@ -165,6 +165,21 @@ export default {
                 resolve(resp);
             });
         });
-    }
+    },
+
+    routeMulPointPlan(points) {
+        return new Promise((resolve, reject) => {
+            try {
+                _routePlan_module.routeMulPointPlan(points);
+            }
+            catch (e) {
+                reject(e);
+                return;
+            }
+            DeviceEventEmitter.once('onMulPointRoutePlanResult', resp => {
+                resolve(resp);
+            });
+        });
+    },
     
 };
