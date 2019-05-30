@@ -37,6 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import static android.content.ContentValues.TAG;
+
+
 import static com.baidu.navisdk.adapter.PackageUtil.getSdcardDir;
 
 
@@ -177,9 +180,9 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
 
     public MapView createViewInstance(ThemedReactContext context) {
         mReactContext = context;
-        if (initDirs()) {
-            initNavi();
-        }
+//        if (initDirs()) {
+//            initNavi();
+//        }
         MapView mapView = new MapView(context);
         mRoutePlanUtil = new RoutePlanUtil();
         mRoutePlanUtil.init(mReactContext, mapView.getMap());
@@ -283,43 +286,40 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
 
     @ReactProp(name = "markers")
     public void setMarkers(MapView mapView, ReadableArray options) {
-        String key = "markers_" + mapView.getId();
-        List<Marker> markers = mMarkersMap.get(key);
-        if (markers == null) {
-            markers = new ArrayList<>();
-        }
-        for (int i = 0; i < options.size(); i++) {
-            ReadableMap option = options.getMap(i);
-            if (markers.size() > i + 1 && markers.get(i) != null) {
-                MarkerUtil.updateMaker(markers.get(i), option);
-            } else {
-                markers.add(i, MarkerUtil.addMarker(mapView, option));
+        if (options.size() > 0) {
+            String key = "markers_" + mapView.getId();
+            List<Marker> markers = mMarkersMap.get(key);
+            if (markers == null) {
+                markers = new ArrayList<>();
             }
-        }
-        if (options.size() < markers.size()) {
-            int start = markers.size() - 1;
-            int end = options.size();
-            for (int i = start; i >= end; i--) {
-                markers.get(i).remove();
-                markers.remove(i);
+            for (int i = 0; i < options.size(); i++) {
+                ReadableMap option = options.getMap(i);
+                if (markers.size() > i + 1 && markers.get(i) != null) {
+                    MarkerUtil.updateMaker(markers.get(i), option);
+                } else {
+                    markers.add(i, MarkerUtil.addMarker(mapView, option));
+                }
             }
+            if (options.size() < markers.size()) {
+                int start = markers.size() - 1;
+                int end = options.size();
+                for (int i = start; i >= end; i--) {
+                    markers.get(i).remove();
+                    markers.remove(i);
+                }
+            }
+            mMarkersMap.put(key, markers);
         }
-        mMarkersMap.put(key, markers);
     }
 
     @ReactProp(name = "routeMarks")
     public void routePlan(MapView mapView, ReadableArray options) {
-
-        ArrayList<MyNode> nodes = new ArrayList<>();
-        for (int i = 0; i < options.size(); i++) {
-            ReadableMap option = options.getMap(i);
-            MyNode node = new MyNode();
-            node.setLatitude(option.getDouble("latitude"));
-            node.setLongtide(option.getDouble("longitude"));
-            nodes.add(node);
+        Log.d(TAG, "routePlan: " + options.size());
+        if (options.size() > 1) {
+            mRoutePlanUtil.routeMulPointPlan(options);
+        } else {
+            Log.d(TAG, "routePlan: " + "所需路径地点不足");
         }
-        mRoutePlanUtil.routeMulPointPlan("DRIVING","深圳",nodes);
-
     }
 
     @ReactProp(name = "childrenPoints")
@@ -353,16 +353,19 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
 
             @Override
             public void onMapStatusChangeStart(MapStatus mapStatus) {
+                Log.d(TAG, "onMapStatusChangeStart: " + mapStatus);
                 sendEvent(mapView, "onMapStatusChangeStart", getEventParams(mapStatus));
             }
 
             @Override
             public void onMapStatusChange(MapStatus mapStatus) {
+                Log.d(TAG, "onMapStatusChange: " + mapStatus);
                 sendEvent(mapView, "onMapStatusChange", getEventParams(mapStatus));
             }
 
             @Override
             public void onMapStatusChangeFinish(MapStatus mapStatus) {
+                Log.d(TAG, "onMapStatusChangeFinish: " + mapStatus);
                 if (mMarkerText.getVisibility() != View.GONE) {
                     mMarkerText.setVisibility(View.GONE);
                 }

@@ -1,6 +1,7 @@
 package org.lovebing.reactnative.baidumap;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.baidu.mapapi.map.BaiduMap;
@@ -9,17 +10,15 @@ import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.core.RouteLine;
 import com.baidu.mapapi.search.core.SearchResult;
-import com.baidu.mapapi.search.route.BikingRoutePlanOption;
 import com.baidu.mapapi.search.route.BikingRouteResult;
 import com.baidu.mapapi.search.route.DrivingRoutePlanOption;
 import com.baidu.mapapi.search.route.DrivingRouteResult;
 import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
 import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
-import com.baidu.mapapi.search.route.TransitRoutePlanOption;
 import com.baidu.mapapi.search.route.TransitRouteResult;
-import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import com.baidu.mapapi.search.route.WalkingRouteResult;
+import com.facebook.react.bridge.ReadableArray;
 
 import org.lovebing.reactnative.overlayutil.BikingRouteOverlay;
 import org.lovebing.reactnative.overlayutil.DrivingRouteOverlay;
@@ -53,24 +52,22 @@ public class RoutePlanUtil implements OnGetRoutePlanResultListener {
         mSearch.setOnGetRoutePlanResultListener(this);
     }
 
-    public void routeMulPointPlan(String wayType, String city, ArrayList<MyNode> nodes) {
+    public void routeMulPointPlan(ReadableArray nodes) {
         // 重置浏览节点的路线数据
         route = null;
         mBauduMap.clear();
+        Log.d("routeMulPointPlan", "routeMulPointPlan: " + nodes);
 
-
-//        LatLng start = new LatLng(22.539962, 113.95075);
-//        LatLng end = new LatLng(22.539862, 113.95165);
-        List<PlanNode> passes = new ArrayList();
+        List<PlanNode> passes = new ArrayList<>();
         LatLng start = null, end = null;
 
         for (int i = 0; i < nodes.size(); i++) {
             if (i == 0) {
-                start = new LatLng(nodes.get(i).getLatitude(), nodes.get(i).getLongtide());
+                start = new LatLng(nodes.getMap(i).getDouble("latitude"), nodes.getMap(i).getDouble("longitude"));
             } else if (i == nodes.size() - 1) {
-                end = new LatLng(nodes.get(i).getLatitude(), nodes.get(i).getLongtide());
+                end = new LatLng(nodes.getMap(i).getDouble("latitude"), nodes.getMap(i).getDouble("longitude"));
             } else {
-                LatLng ll = new LatLng(nodes.get(i).getLatitude(), nodes.get(i).getLongtide());
+                LatLng ll = new LatLng(nodes.getMap(i).getDouble("latitude"), nodes.getMap(i).getDouble("longitude"));
                 PlanNode pass = PlanNode.withLocation(ll);
                 passes.add(pass);
             }
@@ -81,22 +78,8 @@ public class RoutePlanUtil implements OnGetRoutePlanResultListener {
         PlanNode stNode = PlanNode.withLocation(start);
         PlanNode enNode = PlanNode.withLocation(end);
 
-
         // 实际使用中请对起点终点城市进行正确的设定
-        switch (wayType) {
-            case "DRIVING":
-                mSearch.drivingSearch((new DrivingRoutePlanOption()).from(stNode).passBy(passes).to(enNode));
-                break;
-            case "TRANSIT":
-                mSearch.transitSearch((new TransitRoutePlanOption()).from(stNode).city(city).to(enNode));
-                break;
-            case "WALKING":
-                mSearch.walkingSearch((new WalkingRoutePlanOption()).from(stNode).to(enNode));
-                break;
-            case "BIKE":
-                mSearch.bikingSearch((new BikingRoutePlanOption()).from(stNode).to(enNode));
-                break;
-        }
+        mSearch.drivingSearch((new DrivingRoutePlanOption()).from(stNode).passBy(passes).to(enNode));
     }
 
 
