@@ -1,17 +1,5 @@
 apply plugin: 'com.android.library'
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
@@ -31,8 +19,7 @@ android {
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:+'
-    compile files('libs/BaiduLBS_Android.jar')
-    compile files('libs/BaiduNaviSDK_3.3.1.jar')
-    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
+    implementation 'com.facebook.react:react-native:+'
+    implementation files('libs/BaiduLBS_Android.jar')
+    implementation files('libs/BaiduNaviSDK_3.3.1.jar')
 }
